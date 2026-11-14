@@ -77,14 +77,16 @@ class ViterbiBigramDecoder(object):
                 # Previous viterbi probability
                 prev_viterbi_prob = self.v[t-1, :]
 
-                # Chance we get this char as following
+                # Chance we get this char as following according to swedish language, long vector
                 next_char_prob = self.a[:, c]
 
-                # Added probability, prob that we get this state based on the previous prob that a hidden state was correct
+                # Added probability, prob that we get this state based on the previous prob that a hidden state was correct, vector with every probability
                 prob = prev_viterbi_prob + next_char_prob
 
-                # The best previous value we could have
-                best_previous_prob = np.argmax(prob)
+                # The best previous probability value we could have
+                best_previous_prob = np.max(prob)
+                # Its corresponding letter index
+                letter_index_highest_score = np.argmax(prob)
 
                 # Probability this key was meant to be pressed
                 intentional_press_prob = self.b[index[t], c]
@@ -92,13 +94,21 @@ class ViterbiBigramDecoder(object):
                 # New viterbi probability
                 self.v[t, c] = best_previous_prob + intentional_press_prob
 
+                # point back to letter that gave highest score
+                self.backptr[t, c] = letter_index_highest_score
+
+
 
 
         # Finally return the result
 
         # REPLACE THE LINE BELOW WITH YOUR CODE
 
-        return ''
+        # imagine word hej, s looks like [h, e, j, ]
+        # meaning we need to look at backpointer for t = 3 since index starts with 0 we know final state is " " so:
+        path = self.backptr[len(s)-1][Key.START_END]
+
+        return
 
 
     # ------------------------------------------------------
