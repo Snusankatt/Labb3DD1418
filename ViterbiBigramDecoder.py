@@ -106,9 +106,14 @@ class ViterbiBigramDecoder(object):
 
         # imagine word hej, s looks like [h, e, j, ]
         # meaning we need to look at backpointer for t = 3 since index starts with 0 we know final state is " " so:
-        path = self.backptr[len(s)-1][Key.START_END]
+        previous_letter_index = self.backptr[len(s)-1][Key.START_END] # kommer skriva ut j eller bokstaven modellen predictart att det ska vara
+        inverted_predicted_string = ""
+        for i in range(1, len(s)):
+            inverted_predicted_string += Key.index_to_char(previous_letter_index)
+            previous_letter_index = self.backptr[len(s)-1-i][previous_letter_index]
 
-        return
+        predicted_string = inverted_predicted_string[::-1]
+        return predicted_string
 
 
     # ------------------------------------------------------
