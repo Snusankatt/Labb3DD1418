@@ -71,7 +71,28 @@ class ViterbiBigramDecoder(object):
 
         # Induction step
 
-        # YOUR CODE HERE
+        for t in range(1, len(s)):
+            for c in range(Key.NUMBER_OF_CHARS):
+
+                # Previous viterbi probability
+                prev_viterbi_prob = self.v[t-1, :]
+
+                # Chance we get this char as following
+                next_char_prob = self.a[:, c]
+
+                # Added probability, prob that we get this state based on the previous prob that a hidden state was correct
+                prob = prev_viterbi_prob + next_char_prob
+
+                # The best previous value we could have
+                best_previous_prob = np.argmax(prob)
+
+                # Probability this key was meant to be pressed
+                intentional_press_prob = self.b[index[t], c]
+
+                # New viterbi probability
+                self.v[t, c] = best_previous_prob + intentional_press_prob
+
+
 
         # Finally return the result
 
