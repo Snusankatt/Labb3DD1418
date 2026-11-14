@@ -66,17 +66,61 @@ class ViterbiTrigramDecoder(object):
 
         # Initialization
 
-        # YOUR CODE HERE
+        # Paret: första bokstaven + inget (start), ska peka på start
+        self.backptr[0,Key.START_END,:] = Key.START_END
+        
+        self.v[0,Key.START_END,:] = self.a[Key.START_END, Key.START_END, :] + self.b[index[0], :]
 
         # Induction step
 
-        # YOUR CODE HERE
+        for t in range(1, len(s)):
+            for j in range(Key.NUMBER_OF_CHARS):
+                for k in range(Key.NUMBER_OF_CHARS):
+
+                    # Previous viterbi prob
+                    prev_viterbi_prob = self.v[t-1,:,j]
+                    # Following charachter probability
+                    next_char_prob = self.a[:, j, k]
+
+                    # Added prob
+                    prob = prev_viterbi_prob + next_char_prob
+
+                    # The best previous probability value
+                    best_previous_prob = np.max(prob)
+
+                    # Index of max, our best pair is now (letter_index_highest_score, j)
+                    letter_index_highest_score = np.argmax(prob)
+
+
+                    # Probability this key was meant to be pressed
+                    intentional_press_prob = self.b[index[t], k]
+
+                    # New viterbi value
+                    self.v[t, j, k] = best_previous_prob + intentional_press_prob
+
+                    # Point back to the letter pair that gave the highest score
+                    self.backptr[t, j, k] = letter_index_highest_score
+
 
         # Finally return the result
 
-        # REPLACE THE LINE BELOW WITH YOUR CODE
+        reversed_answer = ""
+        j = Key.START_END
+        k = Key.START_END
 
-        return ''
+        for t in range(1, len(s)-2):
+            # Grab value from the backptr
+            next_backptr = self.backptr[len(s)-1-t, j, k]
+
+            # Get the charachter in this index
+            reversed_answer += Key.index_to_char(next_backptr)
+
+            # Update backptr values
+            k = j
+            j = next_backptr
+            
+
+        return reversed_answer[::-1]
 
 
 
