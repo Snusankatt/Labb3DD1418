@@ -77,28 +77,30 @@ class ViterbiTrigramDecoder(object):
             for j in range(Key.NUMBER_OF_CHARS):
                 for k in range(Key.NUMBER_OF_CHARS):
 
-                    # Previous viterbi prob
+                    # Förra viterbi eftersom v[t, j, k] är viterbi
+                    # vid tiden t med paret j, k hittar vi nu alla förra t-1
+                    # par :, j
                     prev_viterbi_prob = self.v[t-1,:,j]
-                    # Following charachter probability
+                    # Nästa bokstav probability
                     next_char_prob = self.a[:, j, k]
 
                     # Added prob
                     prob = prev_viterbi_prob + next_char_prob
 
-                    # The best previous probability value
+                    # Bästa förra viterbi
                     best_previous_prob = np.max(prob)
 
-                    # Index of max, our best pair is now (letter_index_highest_score, j)
+                    # Index av max, bokstaven i som ledde till j. k
                     letter_index_highest_score = np.argmax(prob)
 
 
-                    # Probability this key was meant to be pressed
+                    # Prob att man tryckte rätt
                     intentional_press_prob = self.b[index[t], k]
 
-                    # New viterbi value
+                    # Nya viterbi value
                     self.v[t, j, k] = best_previous_prob + intentional_press_prob
 
-                    # Point back to the letter pair that gave the highest score
+                    # Spara bästa föregående bokstaven i (paret i, j) för att nå till j, k
                     self.backptr[t, j, k] = letter_index_highest_score
 
 
@@ -108,14 +110,14 @@ class ViterbiTrigramDecoder(object):
         j = Key.START_END
         k = Key.START_END
 
-        for t in range(1, len(s)-2):
-            # Grab value from the backptr
+        for t in range(1, len(s)-2): # Kör loopen len(s) - 3 ggr börja på 1 för att hoppa över slutet [START_END, START_END]
+            # Hämta bokstavsindex från backptr
             next_backptr = self.backptr[len(s)-1-t, j, k]
 
-            # Get the charachter in this index
+            # Index till bokstav och lägg till i strängen
             reversed_answer += Key.index_to_char(next_backptr)
 
-            # Update backptr values
+            # Uppdatera backptr
             k = j
             j = next_backptr
             
